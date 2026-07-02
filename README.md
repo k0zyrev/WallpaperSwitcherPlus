@@ -3,7 +3,7 @@
 
 Script to show a random background image and some information about the picture from a .tsv file. File list is shuffled and saved to cache.
 
-## Requirenments:
+## Requirements:
  * feh - to display the images
  * conky - to display the image info plaque
  * yad - to handle input to select image
