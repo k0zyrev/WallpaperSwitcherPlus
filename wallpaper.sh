@@ -10,18 +10,19 @@ CHARS_LINE=50 #characters width in the conky widget
 case ${1:-} in
     -u|--updatedir)
         if [[ ! -f "$IMG_LIST" ]];then
-            find "$IMG_DIR" -type f | shuf > $IMG_LIST
+            find "$IMG_DIR" -type f | shuf > "$IMG_LIST"
             exit
         fi
         check=$(diff <(sort "$IMG_LIST") <(find "$IMG_DIR" -type f | sort))
         if [[ -n "$check" ]]; then
-            find "$IMG_DIR" -type f | shuf > $IMG_LIST
-            echo "$check" | awk -F'/' '/^> / {print $NF}' >> $TSV_FILE
+            find "$IMG_DIR" -type f | shuf > "$IMG_LIST"
+            echo "$check" | awk -F'/' '/^> / {print $NF}' >> "$TSV_FILE"
         fi
         exit
     ;;
     -n|--now)
-        cat "$STATE_FILE"
+        # cat "$STATE_FILE"
+        read -r _idx _ < "$STATE_FILE" && echo "$_idx"
         exit
         ;;
     -h|--help)
@@ -30,7 +31,7 @@ case ${1:-} in
         ;;
 esac
 
-mapfile -t IMAGES < $IMG_LIST
+mapfile -t IMAGES < "$IMG_LIST"
 
 IMG_CNT=${#IMAGES[@]}
 
@@ -58,26 +59,21 @@ fi
 
 # Read last index or start at 0
 if [[ -f "$STATE_FILE" ]]; then
-    LAST=$(cat "$STATE_FILE")
+    # read -r LAST < "$STATE_FILE"
+    read -r LAST CONKY_PID < "$STATE_FILE"
     case ${1:-} in
         -r|--reverse)
-            NEXT=$(( (LAST - 1) % "$IMG_CNT" ))
+            NEXT=$(( (LAST - 1 + IMG_CNT) % $IMG_CNT ))
             ;;
         -s|--select)
-            NUM=$(yad --entry --undecorated --window-type="splash" --title="Wallpaper select" --text="Enter image number (0-$(( $IMG_CNT - 1 ))):\nor ±N - how many images to scroll\ncurrent: $(cat $STATE_FILE)" --width=300)
+            NUM=$(yad --entry --undecorated --window-type="splash" --title="Wallpaper select" --text="Enter image number (0-$(( $IMG_CNT - 1 ))):\nor ±N - how many images to scroll\ncurrent: $LAST)" --width=300)
             if [[ -z "$NUM" ]]; then
                 exit 1
             fi
             if [[ "$NUM" =~ ^[0-9]+$ ]] && (( NUM >= 0 && NUM <= ( IMG_CNT - 1 ) )); then
                 NEXT=$NUM
             elif [[ "$NUM" =~ ^[-+][0-9]+$ ]]; then
-                if (( LAST + NUM < 0  )); then
-                    NEXT=$(( LAST + NUM + IMG_CNT ))
-                elif (( LAST + NUM > IMG_CNT )); then
-                    NEXT=$(( LAST + NUM - IMG_CNT ))
-                else
-                    NEXT=$(( LAST + NUM ))
-                fi
+                NEXT=$(( ((LAST + NUM) % IMG_CNT + IMG_CNT) % IMG_CNT ))
             else
                 # dunstify -t 3000 -- "$NUM is wrong блять! Must be a number 0–$(( $IMG_CNT - 1 )) or ±integer"
                 yad --undecorated --no-buttons --width=300 --window-type="splash" --title="Wallpaper select error" --timeout 3 --text="\n\n\n$NUM is wrong блять! Must be a number 0–$(( $IMG_CNT - 1 )) or ±integer"
@@ -85,7 +81,7 @@ if [[ -f "$STATE_FILE" ]]; then
             fi
             ;;
         *)
-            NEXT=$(( (LAST + 1) % "IMG_CNT" ))
+            NEXT=$(( (LAST + 1) % IMG_CNT ))
             ;;
     esac
 else
@@ -96,47 +92,78 @@ IMAGE=${IMAGES[$NEXT]}
 target="${IMAGE##*/}"
 echo $NEXT > "$STATE_FILE"
 
-line=$(grep -m1 "^$target" "$TSV_FILE")
-# IFS=$'\t' read -r _ author title description medium misc <<< "$line"
-author=$(      cut -f2 <<< "$line")
-title=$(       cut -f3 <<< "$line")
-description=$( cut -f4 <<< "$line")
-medium=$(      cut -f5 <<< "$line")
-misc=$(        cut -f6 <<< "$line")
+mapfile -t fields < <(grep -m1 "^$target"$'\t' "$TSV_FILE" | tr '\t' '\n')
+author="${fields[1]}"  
+title="${fields[2]}"  
+description="${fields[3]}"  
+medium="${fields[4]}"  
+misc="${fields[5]}"
+magic="${fields[6]}"
 
-if [[ "$misc" == "Battletech" ]]; then
-    custom_1_font='1'
-    custom_2_font='4'
-else
-    custom_1_font=''
-    custom_2_font=''
+declare -A FONT_MAP1=(
+    ["Battletech"]=$"Digital Sans Now ML Pro:size=13"
+    ["Slavic"]=$"SPSLRussianSouvenir:size=18"
+)
+declare -A FONT_MAP2=(
+    ["Battletech"]=$"Battletech:size=14"
+    ["Slavic"]=$"Slavianskiy:size=16"
+)
+declare -A FONT_MAP3=(
+    ["Battletech"]=$"Digital Sans Now ML Pro:size=13"
+    ["Slavic"]=$""
+)
+
+if [[ -v FONT_MAP1["$magic"] || -v FONT_MAP2["$magic"] || -v FONT_MAP3["$magic"] ]]; then  
+    author_font=${FONT_MAP1["$magic"]}
+    title_font=${FONT_MAP2["$magic"]}
+    text_font=${FONT_MAP3["$magic"]}
+else  
+    author_font=''
+    title_font=''
+    text_font=''
 fi
 
+# if [[ "$magic" == "Battletech" ]]; then
+#     title_font='1'
+#     author_font='4'
+# else
+#     title_font=''
+#     author_font=''
+# fi
+
 if [[ -n $author || -n $title ]]; then
-    text='$alignr $font'"$custom_2_font $author "
+    text='$alignr ${font '"$author_font} $author "
     if [[ -n $title ]]; then
         title=$(echo "$title" | par "$CHARS_LINE" | sed 's|^|$alignr |')
-        text+='\n\n$font'"$custom_1_font $title"
+        text+='\n\n${font '"$title_font} $title"
     fi
     if [[ -n $description ]]; then
         description=$(echo "$description" | par w"$CHARS_LINE"f1 | sed 's|^|$alignr |')
-        text+='\n\n$font'"$custom_2_font $description"
+        text+='\n\n${font '"$text_font} $description"
     fi
     if [[ -n $medium ]]; then
         # medium='${font (Iosevka Regular:size=8)} '"$medium"
         medium=$(echo "$medium" | par w"$CHARS_LINE"f1 | sed 's|^|$alignr |')
         text+='\n$font3 '"$medium"
     fi
-    if [[ -n $misc && $misc != "Battletech" ]]; then
+    if [[ -n $misc ]]; then
         misc=$(echo "$misc" | par w"$CHARS_LINE"f1 | sed 's|^|$alignr |')
         text+='\n$font3 '"$misc"
     fi
 
-    pkill conky
-    conky -d -c "$HOME/.config/conky/conky.conf" -t "$text" &
+    if [[ -n "$CONKY_PID" ]] && kill -0 "$CONKY_PID" 2>/dev/null; then  
+        kill "$CONKY_PID"  
+    fi  
+    conky -c "$HOME/.config/conky/conky.conf" -t "$text" &  
+    CONKY_PID=$!  
 else
-    pkill conky
+    if [[ -n "$CONKY_PID" ]] && kill -0 "$CONKY_PID" 2>/dev/null; then  
+        kill "$CONKY_PID"  
+    fi  
+    CONKY_PID=""
 fi
+    
+echo "$NEXT $CONKY_PID" > "$STATE_FILE"
 
 feh --no-fehbg --bg-max -B black "$IMAGE"
 exit

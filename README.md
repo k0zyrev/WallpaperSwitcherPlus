@@ -1,5 +1,5 @@
-![Screenshot of a desktop wallpaper with an info plaque](/screenshots/2026-07-02_15-54-56.png)
-[2](/screenshots/2026-07-02_15-55-50.png)  [3](/screenshots/2026-07-02_15-58-13.png)  [4](/screenshots/2026-07-02_16-02-52.png)  [5](/screenshots/2026-07-02_16-06-58.png)
+![Screenshot of a desktop wallpaper with an info plaque](/screenshots/5.png)
+[2](/screenshots/2.png)  [3](/screenshots/3.png)  [4](/screenshots/4.png)  [5](/screenshots/1.png)
 
 Script to show a random background image and some information about the picture from a .tsv file. File list is shuffled and saved to cache.
 
@@ -10,7 +10,7 @@ Script to show a random background image and some information about the picture 
  * par - to format text for conky
 
 ## Usage:
-Since the script relies on a cached list of the files, you must run `wallpaper.sh -u` first in order to generate the list. If you don't it will display an error. It also requires a .tsv file with the image information and will not run without it. The .tsv schema is `file name \t author \t title \t description \t medium \t misc` (see example file). Up to you to create it manually.\
+Since the script relies on a cached list of the files, you must run `wallpaper.sh -u` first in order to generate the list. If you don't it will display an error. It also requires a .tsv file with the image information and will not run without it. The .tsv schema is `file name \t author \t title \t description \t medium \t misc \t tag` (see example file). Up to you to create it manually.\
 Add wallpaper.sh to autostart in your window manager\
 i3wm example:\
     ```
@@ -30,7 +30,10 @@ This will switch wallpaper on every i3wm restart, to make it a slideshow add the
         * */12 * * * /path/to/script/wallpaper.sh -u
     ```\
 By default the script shuffles images, if you want to change that you need to replace "shuf" with "sort" configured to sorting order of your choosing.\
-The script support dynamic text style - it looks into the misc field and if it contains the magic word, it switches the fonts. In order for that to work, fonts mush be configured in conky config, and their numbers (font, font1, font2, etc) should be in accordance with custom_N_font variables in the script.\
+The script support dynamic text style - it looks into the tag field and if it contains a tag in it, it switches the fonts. Read the script for more\
+
+[!IMPORTANT]
+Caveat: in order to properly kill conky process from the script, conky must not fork into background, make sure that background = false in the conky config.\
 
 ## Supported commands:
  * wallpaper.sh - display the next image
