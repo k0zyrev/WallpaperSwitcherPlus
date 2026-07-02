@@ -1,5 +1,5 @@
 ![Screenshot of a desktop wallpaper with an info plaque](/screenshots/2026-07-02_15-54-56.png)
-[2](2026-07-02_15-55-50.png)  [3](2026-07-02_15-58-13.png)  [4](2026-07-02_16-02-52.png)  [5](2026-07-02_16-06-58.png)
+[2](/screenshots/2026-07-02_15-55-50.png)  [3](/screenshots/2026-07-02_15-58-13.png)  [4](/screenshots/2026-07-02_16-02-52.png)  [5](/screenshots/2026-07-02_16-06-58.png)
 
 Script to show a random background image and some information about the picture from a .tsv file. File list is shuffled and saved to cache.
 
