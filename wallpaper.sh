@@ -98,7 +98,7 @@ title="${fields[2]}"
 description="${fields[3]}"  
 medium="${fields[4]}"  
 misc="${fields[5]}"
-magic="${fields[6]}"
+tag="${fields[6]}"
 
 declare -A FONT_MAP1=(
     ["Battletech"]=$"Digital Sans Now ML Pro:size=13"
@@ -113,23 +113,15 @@ declare -A FONT_MAP3=(
     ["Slavic"]=$""
 )
 
-if [[ -v FONT_MAP1["$magic"] || -v FONT_MAP2["$magic"] || -v FONT_MAP3["$magic"] ]]; then  
-    author_font=${FONT_MAP1["$magic"]}
-    title_font=${FONT_MAP2["$magic"]}
-    text_font=${FONT_MAP3["$magic"]}
+if [[ -v FONT_MAP1["$tag"] || -v FONT_MAP2["$tag"] || -v FONT_MAP3["$tag"] ]]; then  
+    author_font=${FONT_MAP1["$tag"]}
+    title_font=${FONT_MAP2["$tag"]}
+    text_font=${FONT_MAP3["$tag"]}
 else  
     author_font=''
     title_font=''
     text_font=''
 fi
-
-# if [[ "$magic" == "Battletech" ]]; then
-#     title_font='1'
-#     author_font='4'
-# else
-#     title_font=''
-#     author_font=''
-# fi
 
 if [[ -n $author || -n $title ]]; then
     text='$alignr ${font '"$author_font} $author "
