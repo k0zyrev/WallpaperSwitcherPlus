@@ -12,23 +12,21 @@ Script to show a random background image and some information about the picture 
 ## Usage:
 Since the script relies on a cached list of the files, you must run `wallpaper.sh -u` first in order to generate the list. If you don't it will display an error. It also requires a .tsv file with the image information and will not run without it. The .tsv schema is `file name \t author \t title \t description \t medium \t misc \t tag` (see example file). Up to you to create it manually.\
 Add wallpaper.sh to autostart in your window manager\
-i3wm example:\
-    ```
-        exec_always --no-startup-id ~/scripts/wallpaper.sh
-        # optional keybindings
-        bindsym $mod+n exec --no-startup-id ~/scripts/wallpaperSlideshow.sh  #next wallpaper
-        bindsym $mod+p exec --no-startup-id ~/scripts/wallpaperSlideshow.sh -r  #previous wallpaper
-        bindsym $mod+shift+n exec --no-startup-id ~/scripts/wallpaperSlideshow.sh -s  #select wallpaper
-    ```\
+i3wm example:
+```
+exec_always --no-startup-id ~/scripts/wallpaper.sh
+# optional keybindings
+bindsym $mod+n exec --no-startup-id ~/scripts/wallpaperSlideshow.sh  #next wallpaper
+bindsym $mod+p exec --no-startup-id ~/scripts/wallpaperSlideshow.sh -r  #previous wallpaper
+bindsym $mod+shift+n exec --no-startup-id ~/scripts/wallpaperSlideshow.sh -s  #select wallpaper
+```
 This will switch wallpaper on every i3wm restart, to make it a slideshow add the script to crontab (crontab -e):\
-    switch image every 20 minutes\
-    ```
-        */20 * * * * /path/to/script/wallpaper.sh
-    ```\
-    update file list every 12 hours\
-    ```
-        * */12 * * * /path/to/script/wallpaper.sh -u
-    ```\
+```
+#switch image every 20 minutes
+*/20 * * * * /path/to/script/wallpaper.sh
+#update file list every 12 hours
+* */12 * * * /path/to/script/wallpaper.sh -u
+```
 By default the script shuffles images, if you want to change that you need to replace "shuf" with "sort" configured to sorting order of your choosing.\
 The script support dynamic text style - it looks into the tag field and if it contains a tag in it, it switches the fonts. Read the script for more\
 
