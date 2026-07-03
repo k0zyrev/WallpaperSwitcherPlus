@@ -28,7 +28,7 @@ This will switch wallpaper on every i3wm restart, to make it a slideshow add the
 * */12 * * * /path/to/script/wallpaper.sh -u
 ```
 By default the script shuffles images, if you want to change that you need to replace "shuf" with "sort" configured to sorting order of your choosing.\
-The script support dynamic text style - it looks into the tag field and if it contains a tag in it, it switches the fonts. Read the script for more\
+The script supports dynamic text style - it looks into the tag field and if it contains a tag in it, it switches the fonts. Read the script for more
 
 > [!IMPORTANT]
 > Caveat: in order to properly kill conky process from the script, conky must not fork into background, make sure that background = false in the conky config.
