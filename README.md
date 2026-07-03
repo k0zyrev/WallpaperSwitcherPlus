@@ -16,9 +16,9 @@ i3wm example:
 ```
 exec_always --no-startup-id ~/scripts/wallpaper.sh
 # optional keybindings
-bindsym $mod+n exec --no-startup-id ~/scripts/wallpaperSlideshow.sh  #next wallpaper
-bindsym $mod+p exec --no-startup-id ~/scripts/wallpaperSlideshow.sh -r  #previous wallpaper
-bindsym $mod+shift+n exec --no-startup-id ~/scripts/wallpaperSlideshow.sh -s  #select wallpaper
+bindsym $mod+n exec --no-startup-id ~/scripts/wallpaper.sh  #next wallpaper
+bindsym $mod+p exec --no-startup-id ~/scripts/wallpaper.sh -r  #previous wallpaper
+bindsym $mod+shift+n exec --no-startup-id ~/scripts/wallpaper.sh -s  #select wallpaper
 ```
 This will switch wallpaper on every i3wm restart, to make it a slideshow add the script to crontab (crontab -e):\
 ```
