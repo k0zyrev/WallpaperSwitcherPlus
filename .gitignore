@@ -1,1 +1,2 @@
-example/.cache/
+example/.cache/*
+!example/.cache/.gitkeep
