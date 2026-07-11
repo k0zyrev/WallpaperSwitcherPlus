@@ -18,7 +18,8 @@ modulo () {
 
 format_text () {
     if [[ -n $1 ]]; then
-        local strings=$(echo "$1" | par "$CHARS_LINE" | sed 's|^|$alignr |')
+        local strings
+        strings=$(echo "$1" | par "$CHARS_LINE" | sed 's|^|$alignr |')
         text+="$3"'\n${font '"$2} $strings"
     fi
 }
@@ -87,7 +88,7 @@ if [[ -f "$STATE_FILE" ]]; then
             NEXT=$(modulo "-1")
             ;;
         -s|--select)
-            NUM=$(yad --entry --undecorated --window-type="splash" --title="Wallpaper select" --text="Enter image number (0-$(( $IMG_CNT - 1 ))):\nor ±N - how many images to scroll\ncurrent: $LAST)" --width=300)
+            NUM=$(yad --entry --undecorated --window-type="splash" --title="Wallpaper select" --text="Enter image number (0-$(( IMG_CNT - 1 ))):\nor ±N - how many images to scroll\ncurrent: $LAST" --width=300)
             if [[ -z "$NUM" ]]; then
                 exit 1
             elif [[ "$NUM" =~ ^[0-9]+$ ]] && (( NUM >= 0 && NUM <= ( IMG_CNT - 1 ) )); then
@@ -96,7 +97,7 @@ if [[ -f "$STATE_FILE" ]]; then
                 NEXT=$(modulo "$NUM")
             else
                 # dunstify -t 3000 -- "$NUM is wrong блять! Must be a number 0–$(( $IMG_CNT - 1 )) or ±integer"
-                yad-error "Wallpaper select error" "\n\n\n$NUM is wrong блять! Must be a number 0–$(( $IMG_CNT - 1 )) or ±integer" "3"
+                yad-error "Wallpaper select error" "\n\n\n$NUM is wrong блять! Must be a number 0–$(( IMG_CNT - 1 )) or ±integer" "3"
                 exit 1
             fi
             ;;
@@ -118,19 +119,6 @@ description="${fields[3]}"
 medium="${fields[4]}"  
 misc="${fields[5]}"
 tag="${fields[6]}"
-
-declare -A FONT_MAP1=(
-    ["Battletech"]=$"Digital Sans Now ML Pro:size=13"
-    ["Slavic"]=$"SPSLRussianSouvenir:size=18"
-)
-declare -A FONT_MAP2=(
-    ["Battletech"]=$"Battletech:size=14"
-    ["Slavic"]=$"Slavianskiy:size=16"
-)
-declare -A FONT_MAP3=(
-    ["Battletech"]=$"Digital Sans Now ML Pro:size=13"
-    ["Slavic"]=$""
-)
 
 if [[ -v FONT_MAP1["$tag"] || -v FONT_MAP2["$tag"] || -v FONT_MAP3["$tag"] ]]; then  
     author_font=${FONT_MAP1["$tag"]}
