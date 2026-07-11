@@ -93,16 +93,16 @@ if [[ -f "$STATE_FILE" ]]; then
             NEXT=$(modulo "-1")
             ;;
         -s|--select)
-            NUM=$(yad --entry --undecorated --window-type="splash" --title="Wallpaper select" --text="Enter image number (0-$(( IMG_CNT - 1 ))):\nor ±N - how many images to scroll\ncurrent: $LAST" --width=300)
+            NUM=$(yad --entry --undecorated --window-type="splash" --title="Wallpaper select" --text="Enter image number (1-$(( IMG_CNT ))):\nor ±N - how many images to scroll\ncurrent: $(( LAST + 1 ))" --width=300)
             if [[ -z "$NUM" ]]; then
                 exit 1
-            elif [[ "$NUM" =~ ^[0-9]+$ ]] && (( NUM >= 0 && NUM <= ( IMG_CNT - 1 ) )); then
-                NEXT=$NUM
+            elif [[ "$NUM" =~ ^[0-9]+$ ]] && (( NUM > 0 && NUM <= ( IMG_CNT ) )); then
+                NEXT=$(( NUM - 1 ))
             elif [[ "$NUM" =~ ^[-+][0-9]+$ ]]; then
                 NEXT=$(modulo "$NUM")
             else
                 # dunstify -t 3000 -- "$NUM is wrong блять! Must be a number 0–$(( $IMG_CNT - 1 )) or ±integer"
-                yad-error "Wallpaper select error" "\n\n\n$NUM is wrong блять! Must be a number 0–$(( IMG_CNT - 1 )) or ±integer" "3"
+                yad-error "Wallpaper select error" "\n\n\n$NUM is wrong блять! Must be a number 1–$(( IMG_CNT )) or ±integer" "3"
                 exit 1
             fi
             ;;
