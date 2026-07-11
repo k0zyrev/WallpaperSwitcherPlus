@@ -16,19 +16,25 @@ modulo () {
     echo "$NUM"
 }
 
-format_text () {
+format_text_plaque () {
     if [[ -n $1 ]]; then
-        local strings
-        strings=$(echo "$1" | par "$CHARS_LINE" | sed 's|^|$alignr |')
-        text+="$3"'\n${font '"$2} $strings"
+        text+="{$4}{font:$2}$3$1{/font}{/$4}"
     fi
 }
 
-kill_conky () {
-    if [[ -n "$CONKY_PID" ]] && kill -0 "$CONKY_PID" 2>/dev/null; then  
-        kill "$CONKY_PID"  
-    fi
-}
+# format_text () {
+#     if [[ -n $1 ]]; then
+#         local strings
+#         strings=$(echo "$1" | par "$CHARS_LINE" | sed 's|^|$alignr |')
+#         text+="$3"'\n${font '"$2} $strings"
+#     fi
+# }
+#
+# kill_conky () {
+#     if [[ -n "$CONKY_PID" ]] && kill -0 "$CONKY_PID" 2>/dev/null; then  
+#         kill "$CONKY_PID"  
+#     fi
+# }
 
 case ${1:-} in
     -u|--updatedir)
@@ -71,18 +77,17 @@ if [[ ! -f "$TSV_FILE" || "$IMG_CNT" -eq 0 ]]; then
             warning+="Error: wallpaper folder '$IMG_DIR' is empty."
         fi
     fi
-    pkill conky
     pkill picom
     yad-error "Wallpaper select error" "$warning" "30"
-    conky -a mm -d -t "$warning" &
     xsetroot -solid "#FF0000"
+    plaque -u -t "$warning" --opacity 1.0 &
     exit 1
 fi
 
 # Read last index or start at 0
 if [[ -f "$STATE_FILE" ]]; then
-    # read -r LAST < "$STATE_FILE"
-    read -r LAST CONKY_PID < "$STATE_FILE"
+    read -r LAST < "$STATE_FILE"
+    # read -r LAST CONKY_PID < "$STATE_FILE"
     case ${1:-} in
         -r|--reverse)
             NEXT=$(modulo "-1")
@@ -136,22 +141,31 @@ medium_font='Noto Sans CJK JP:size=8'
 misc_font="$medium_font"
 
 if [[ -n $author || -n $title ]]; then
-    text='$alignr ${font '"$author_font} $author "
+    # text='$alignr ${font '"$author_font} $author "
+    #
+    # format_text "$title" "$title_font" "$extra_newline"
+    # format_text "$description" "$description_font" "$extra_newline"
+    # format_text "$medium" "$medium_font"
+    # format_text "$misc" "$misc_font"
+    #
+    # kill_conky
+    # conky -c "$CONKY_CONFIG" -t "$text" &  
+    # CONKY_PID=$!  
+    text="{right}{font:$author_font}$author{/font}{/right}"
 
-    format_text "$title" "$title_font" "$extra_newline"
-    format_text "$description" "$description_font" "$extra_newline"
-    format_text "$medium" "$medium_font"
-    format_text "$misc" "$misc_font"
-
-    kill_conky
-    conky -c "$CONKY_CONFIG" -t "$text" &  
-    CONKY_PID=$!  
+    format_text_plaque "$title" "$title_font"  "$extra_newline" "right"
+    format_text_plaque "$description" "$description_font" "$extra_newline" "justify-right"
+    format_text_plaque "$medium" "$medium_font" "" "right"
+    format_text_plaque "$misc" "$misc_font" "" "right"
+    plaque -u -t "$text" --LMB-double "$IMAGE" --opacity 1 &
 else
-    kill_conky
-    CONKY_PID=""
+    # kill_conky
+    # CONKY_PID=""
+    plaque -u -t "" --LMB-double "" --opacity 0.0 &
 fi
     
-echo "$NEXT $CONKY_PID" > "$STATE_FILE"
+# echo "$NEXT $CONKY_PID" > "$STATE_FILE"
+echo "$NEXT" > "$STATE_FILE"
 
 feh --no-fehbg --bg-max -B black "$IMAGE"
 exit
